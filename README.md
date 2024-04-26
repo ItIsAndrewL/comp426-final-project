@@ -36,3 +36,13 @@ The swipe page will consist of a center display, where the cover art, artist nam
 ### playlist_page
 
 The playlist page will house all of the users liked playlists. Users should be able to port their liked playlists to actual spotify playlists that they can save to their account.
+
+## Technical Details
+
+### Frontend
+
+The frontend will be coded using React
+
+### Backend
+
+The backend will be created using Express JS
