@@ -20,3 +20,19 @@ Here's how we plan on doing this:
 3) The third party API we plan on using is the Spotify API to get the song information/snippets. The route we will most likely need to use for this is `GET /tracks/{id}`. [Route Documentation](https://developer.spotify.com/documentation/web-api/reference/get-track)
 4) We plan on having a user sign-in component so users can see past session playlists and possibly link directly into their spotify account
 5) The user experience will mostly be in the swiping page, which should have a nice, pleasing design
+
+## Pages
+
+We plan to have 3 pages: `login_page`, `swipe_page`, and `playlist_page`
+
+### login_page
+
+The login page will be where users can sign up for the app or sign in to access their account.
+
+### swipe_page
+
+The swipe page will consist of a center display, where the cover art, artist name, and song name will appear. The song preview will play in the background on loop. There will be a button to like and a button to dislike. The like button should add the song to the current day's liked playlist, the dislike song button should make sure that song is never suggested again to the user.
+
+### playlist_page
+
+The playlist page will house all of the users liked playlists. Users should be able to port their liked playlists to actual spotify playlists that they can save to their account.
