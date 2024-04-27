@@ -2,6 +2,15 @@
 
 Music Tinder Web Application Project - Swipe on song snippets to create a discovery list!
 
+## Getting Started
+
+To get started on development follow these instructions:
+
+1) `cd Spotify Tinder`
+2) `npm install`
+
+To run the development server run `npm run dev`.
+
 ## Assignment Design Considerations
 
 For the final project assignment, we must complete the following:
@@ -39,10 +48,6 @@ The playlist page will house all of the users liked playlists. Users should be a
 
 ## Technical Details
 
-### Frontend
+The Spotify Tinder app will be programmed using vite-express. For those unfamiliar, [Vite](https://vitejs.dev/) is a build tool and development server that makes using certain frameworks faster and more efficient when deployed. We will be using the React framework with Vite and ExpressJS on the backend. Also note that TypeScript will be used in place of JavaScript as we like typing better :D
 
-The frontend will be coded using React
-
-### Backend
-
-The backend will be created using Express JS
+For more information on the specific package install please see [this page](https://www.npmjs.com/package/create-vite-express).
