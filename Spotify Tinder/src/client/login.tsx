@@ -4,34 +4,46 @@ import { useState } from "react";
 
 function Login() {
   const [count, setCount] = useState(0);
-  let error_field = document.getElementById('errorField') as HTMLParagraphElement;
+  const [userName, setUserName] = useState("");
+  const [password, setPassword] = useState("");
+  const [loginStatus, setLoginStatus] = useState("");
+  const error_field = document.getElementById('errorField') ?? null;
 
-  async function Login(userName: string, password: string){
-
-    return await fetch('https://localhost/login:3000', {method: 'POST', body: JSON.stringify({userName: userName, password: password}), headers: {'Content-type' : 'application/json'}});
+  let userAuthenticated = async () =>{
+    let isAuth = await fetch('https://localhost:3000/api/isAuth');
+    //setLoginStatus(isAuth.body);
   }
 
-  const loginButton = document.getElementById("LoginButton");
-  if(loginButton){
-    loginButton.onclick = async () => {
-      let username_element = document.getElementById('userName') as HTMLInputElement;
-      let password_element = document.getElementById('password') as HTMLInputElement;
-      let userName = username_element.value;
-      let password = password_element.value;
-      if(userName == '' && password == ''){
-        error_field.innerHTML = "Please complete username and password fields."
-        setTimeout(() => error_field.innerHTML = '', 5000)
+
+  async function signIn(userName: string, password: string){
+    try{
+      return await fetch('https://localhost:3000/api/login', {method: 'POST', body: JSON.stringify({userName: userName, password: password}), headers: {'Content-type' : 'application/json'}});
+    }catch (e){
+      console.log(e);
+      if(error_field){
+        error_field.innerText = `Something went wrong, please try again.`;
       }
-      Login(userName, password);
+      return;
     }
   }
 
   return (
     <div className='login'>
         <p id='errorField'></p>
-        <input id="userName" placeholder="johndoe123" type="text">Username</input>
-        <input id="password" placeholder="*********" type="password">Password</input>
-        <button id="loginButton">Login</button>
+        <p>Username</p>
+        <input id="userName" name="username" placeholder="johndoe123" type="text" onChange={(e) => {setUserName(e.target.value); if(error_field) error_field.innerText = ``;} } />
+        <p>Password</p>
+        <input id="password" name="password" placeholder="*********" type="password" onChange={(e) => {setPassword(e.target.value); if(error_field) error_field.innerText = ``;}} />
+        <button id="loginButton" onClick={async () => 
+        {
+          signIn(userName, password);
+          if(!userName || !password){
+            if(error_field){
+            error_field.innerHTML = `Please ensure Username and Password fields are filled in`;
+            }
+          }
+        }
+        }>Login</button>
     </div>
   );
 }

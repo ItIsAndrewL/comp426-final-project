@@ -6,7 +6,27 @@
 }
 
 .login{
-    width: 300px;
+    width: 400px;
     background-color: beige;
-    
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    height: 500px;
+    text-align: start;
+    color: black;
+    border-radius: 20px;
+}
+
+input, button{
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    height: 40px;
+}
+
+p{
+    margin-bottom: 5px;
+    margin-left: 20px;
 }
