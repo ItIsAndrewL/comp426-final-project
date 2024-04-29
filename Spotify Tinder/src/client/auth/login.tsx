@@ -1,12 +1,12 @@
 import "./login.css";
+import { PAGE } from "../page";
 
 import { useState } from "react";
 
-function Login() {
+function Login({ setPage, setErrorStatus, errorStatus }: any) {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [loginStatus, setLoginStatus] = useState("");
-  const [errorStatus, setErrorStatus] = useState("");
 
   let userAuthenticated = async () =>{
     let isAuth = await fetch('/api/isAuth');
@@ -27,14 +27,14 @@ function Login() {
       });
 
       if (response.ok) {
-        // * Add logic for successful sign in
+        // TODO: Add logic for successful sign in
+        console.log(await response.json());
       } else {
         setErrorStatus(await response.text());
         return;
       }
 
     }catch (e){
-      console.log(e);
       setErrorStatus(`Something went wrong, please try again.`);
       return;
     }
@@ -42,12 +42,14 @@ function Login() {
 
   return (
     <div className='login'>
+      <h1>Log In</h1>
         <p>Username</p>
         <input id="userName" name="username" placeholder="johndoe123" type="text" onChange={e => setUserName(e.target.value)} />
         <p>Password</p>
         <input id="password" name="password" placeholder="*********" type="password" onChange={e => setPassword(e.target.value)} />
         <button id="loginButton" onClick={signIn}>Login</button>
         <p className='errorStatus'>{errorStatus}</p>
+        <button id="tosignup" onClick={() => setPage(PAGE.SIGNUP)}>Need an account? Sign Up</button>
     </div>
   );
 }

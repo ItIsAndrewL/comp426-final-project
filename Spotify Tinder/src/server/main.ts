@@ -1,27 +1,29 @@
+import "dotenv/config"
 import express from "express";
 import ViteExpress from "vite-express";
 import bodyParser from "body-parser";
 import Jwt from 'jsonwebtoken';
-import cors from 'cors'
+
+//import cors from 'cors'
 
 import { User } from "./user.js";
 
 const app = express();
 const router = express.Router();
-const secretKey = process.env.JSONSECRETKEY ?? '';
+const secretKey = process.env.JSONSECRETKEY!;
 const options = {expiresIn: '1w'};
 
 //app.use(cors());
 app.use(bodyParser.json());
 app.use('/api', router)
 
-const verifyJWT = (req, res, next) => {
+const verifyJWT = (req: any, res: any, next: any) => {
   const token = req.headers["x-access-token"];
 
   if(!token){
     res.status(403).send('User not authenticated');
   }else{
-    Jwt.verify(token, secretKey, (err, decoded) => {
+    Jwt.verify(token, secretKey, (err: any, decoded: any) => {
       if(err){
         res.json({authenticated : false, message: 'User not authenticated'});
       } else{
@@ -32,29 +34,44 @@ const verifyJWT = (req, res, next) => {
   }
 }
 
+
 router.get("/isAuth", verifyJWT, (req, res) => {
   res.json({authenticated: true, message: "User is authenticated"});
 })
 
 router.post("/signup", async (req, res) => {
+  /**
+   * Route for allowing users to signup to the website
+   * 
+   * Expecting body data in this form:
+   * {userName: string, password: string}
+   */
+  if((typeof req.body.userName !== 'string') || (typeof req.body.password !== 'string')){
+    res.status(400).send("Bad Request, check json body");
+    return;
+  }
+
   try{
-    let user = await User.createUser(req.body);
-    if(!user){
-      res.status(400).send("Bad Request");
+    let user = await User.createUser(req.body.userName, req.body.password);
+    if (!user) {
+      res.status(404).send("That account already exists, please log in.");
       return;
     }
-    let token = Jwt.sign(user.json(),secretKey,options);
+    let token = Jwt.sign(user.json(), secretKey, options);
     res.json({user: user.json(), token: token})
   }catch (e){
     console.log(e);
-    res.status(500).send("Internal server error");
+    res.status(500).send("Internal server error: " + e);
   }
 });
 
 router.post("/login", async (req, res) => {
+  if((typeof req.body.userName !== 'string') || (typeof req.body.password !== 'string')){
+    res.status(400).send("Bad Request, check json body");
+    return;
+  } 
   try{
-    console.log(req.body);
-    let user = await User.login(req.body);
+    let user = await User.login(req.body.userName, req.body.password);
     if(!user){
       res.status(404).send("Incorrect Username or Password");
       return;

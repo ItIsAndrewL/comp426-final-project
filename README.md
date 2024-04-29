@@ -10,23 +10,18 @@ Install Dependencies
 
 1) `cd Spotify Tinder`
 2) `npm install`
-
-Initialize Database
-
-3) `pushd src/server`
-4) Create a `.env` file with the contents:
+3) In the current directory, create a `.env` file with the contents:
 
 ```json
 JSONSECRETKEY = <UUID Generated Value>
 ```
 You can generate your own UUID [here](https://www.uuidgenerator.net/).
 
-5) Create the database by running: `node db_setup.js`
+4) Create the database by running: `node src/server/db_setup.js`
 
 Run the Server
 
-6) Navigate back to `Spotify Tinder` directory: `popd`
-7) To run the development server run `npm run dev`.
+5) To run the development server run `npm run dev`.
 
 ## Assignment Design Considerations
 
