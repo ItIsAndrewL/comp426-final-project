@@ -40,12 +40,12 @@ export default function Signup({ setPage, setErrorStatus, errorStatus }: any) {
         <div className="signup">
             <h1>Sign Up</h1>
             <p>Username</p>
-            <input id="userName" name="username" placeholder="johndoe123" type="text" onChange={e => setNewUser(e.target.value)} />
+            <input id="userName" name="username" placeholder="johndoe123" type="text" onChange={e => {setNewUser(e.target.value); setErrorStatus("");}} />
             <p>Password</p>
-            <input id="password" name="password" placeholder="*********" type="password" onChange={e => setNewPass(e.target.value)} />
+            <input id="password" name="password" placeholder="*********" type="password" onChange={e => {setNewPass(e.target.value); setErrorStatus("");}} />
             <button id="loginButton" onClick={onSubmit}>Sign Up</button>
             <p className='errorStatus'>{errorStatus}</p>
-            <button id="toLogIn" onClick={() => setPage(PAGE.LOGIN)}>Have an account? Log In</button>
+            <button id="toLogIn" onClick={() => {setPage(PAGE.LOGIN); setErrorStatus("");}}>Have an account? Log In</button>
         </div>
     );
 }

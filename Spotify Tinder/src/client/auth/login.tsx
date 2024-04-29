@@ -44,12 +44,12 @@ function Login({ setPage, setErrorStatus, errorStatus }: any) {
     <div className='login'>
       <h1>Log In</h1>
         <p>Username</p>
-        <input id="userName" name="username" placeholder="johndoe123" type="text" onChange={e => setUserName(e.target.value)} />
+        <input id="userName" name="username" placeholder="johndoe123" type="text" onChange={e => {setUserName(e.target.value); setErrorStatus("");}} />
         <p>Password</p>
-        <input id="password" name="password" placeholder="*********" type="password" onChange={e => setPassword(e.target.value)} />
+        <input id="password" name="password" placeholder="*********" type="password" onChange={e => {setPassword(e.target.value); setErrorStatus("");}} />
         <button id="loginButton" onClick={signIn}>Login</button>
         <p className='errorStatus'>{errorStatus}</p>
-        <button id="tosignup" onClick={() => setPage(PAGE.SIGNUP)}>Need an account? Sign Up</button>
+        <button id="tosignup" onClick={() => {setPage(PAGE.SIGNUP); setErrorStatus("");}}>Need an account? Sign Up</button>
     </div>
   );
 }
