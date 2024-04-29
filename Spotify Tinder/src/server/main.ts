@@ -11,7 +11,7 @@ const router = express.Router();
 const secretKey = process.env.JSONSECRETKEY ?? '';
 const options = {expiresIn: '1w'};
 
-app.use(cors());
+//app.use(cors());
 app.use(bodyParser.json());
 app.use('/api', router)
 

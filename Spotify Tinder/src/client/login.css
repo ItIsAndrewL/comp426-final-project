@@ -17,6 +17,14 @@
     border-radius: 20px;
 }
 
+.errorStatus {
+    color: red;
+    font-weight: bold;
+    text-align: center;
+    font-size: 16px;
+    max-width: 80%;
+}
+
 input, button{
     margin-left: 20px;
     margin-right: 20px;
