@@ -23,14 +23,14 @@ export default function Signup({ setPage, setErrorStatus, errorStatus }: any) {
                 body: JSON.stringify({userName: newUser, password: newPass})
             });
             if (response.ok) {
-                // TODO: Redirect to Login Page
+                // Redirect to Login Page
                 setErrorStatus("Account Creation Successful. Please Log In.");
-                console.log(await response.json());
                 setPage(PAGE.LOGIN);
             } else {
                 setErrorStatus(await response.text());
             }
         } catch (e) {
+            console.log(e);
             setErrorStatus("There was an error, please try again.");
         }
     }
