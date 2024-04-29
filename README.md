@@ -6,10 +6,22 @@ Music Tinder Web Application Project - Swipe on song snippets to create a discov
 
 To get started on development follow these instructions:
 
+Install Dependencies
+
 1) `cd Spotify Tinder`
 2) `npm install`
+3) In the current directory, create a `.env` file with the contents:
 
-To run the development server run `npm run dev`.
+```json
+JSONSECRETKEY = <UUID Generated Value>
+```
+You can generate your own UUID [here](https://www.uuidgenerator.net/).
+
+4) Create the database by running: `node src/server/db_setup.js`
+
+Run the Server
+
+5) To run the development server run `npm run dev`.
 
 ## Assignment Design Considerations
 
@@ -51,3 +63,9 @@ The playlist page will house all of the users liked playlists. Users should be a
 The Spotify Tinder app will be programmed using vite-express. For those unfamiliar, [Vite](https://vitejs.dev/) is a build tool and development server that makes using certain frameworks faster and more efficient when deployed. We will be using the React framework with Vite and ExpressJS on the backend. Also note that TypeScript will be used in place of JavaScript as we like typing better :D
 
 For more information on the specific package install please see [this page](https://www.npmjs.com/package/create-vite-express).
+
+### Using JWT
+
+The auth of the webpage uses [JWT](https://www.npmjs.com/package/jsonwebtoken). To send a request to the backend, you will be required to authorize via JWT. To do this make sure to hook the `token` state from `App.tsx` and send it in the header section of the request with key `jwt-token`.
+
+On the backend, to configure a route to authorize via JWT, include the `verifyJWT` middleware function to your route params.

@@ -1,36 +1,57 @@
 import "./App.css";
+import { PAGE } from "./page"
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-import reactLogo from "./assets/react.svg";
+import Login from "./auth/login";
+import Signup from "./auth/signup"
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [page, setPage] = useState(PAGE.BLANK);
+  const [errorStatus, setErrorStatus] = useState("");
+  const [token, setToken] = useState("");
+
+  useEffect(() => {
+    //* Note this will fire twice in dev due to Strict mode being on
+    const token = localStorage.getItem('jwt-token') ?? "";
+    setToken(token);
+    fetch('/api/isAuth', {
+      headers: {
+        'jwt-token': token
+      }
+    }).then(res => res.json())
+    .then(data => {
+      if (data.isAuth) {
+        setPage(PAGE.AUTHED);
+      } else {
+        setPage(PAGE.LOGIN);
+      }
+    });
+  }, []);
+
+  let logout = () => {
+    setToken('');
+    localStorage.removeItem('jwt-token');
+  }
+
+  let content;
+  if (page == PAGE.LOGIN) {
+    content = <Login setPage={setPage} errorStatus={errorStatus} setErrorStatus={setErrorStatus} setToken={setToken} />;
+  } else if (page == PAGE.SIGNUP) {
+    content = <Signup setPage={setPage} errorStatus={errorStatus} setErrorStatus={setErrorStatus} />;
+  } else if (page == PAGE.AUTHED) {
+    content = <h1>AUTHED!</h1>;
+  }
+
 
   return (
     <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <h1 className="Title">Spotify Tinder</h1>
+      {content}
     </div>
   );
+
+  
 }
 
 export default App;
