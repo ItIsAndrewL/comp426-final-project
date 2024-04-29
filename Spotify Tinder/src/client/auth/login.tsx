@@ -3,16 +3,9 @@ import { PAGE } from "../page";
 
 import { useState } from "react";
 
-function Login({ setPage, setErrorStatus, errorStatus }: any) {
+function Login({ setPage, setErrorStatus, errorStatus, setToken }: any) {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
-  const [loginStatus, setLoginStatus] = useState("");
-
-  let userAuthenticated = async () =>{
-    let isAuth = await fetch('/api/isAuth');
-    //setLoginStatus(isAuth.body);
-  }
-
 
   async function signIn(){
     try{
@@ -27,13 +20,18 @@ function Login({ setPage, setErrorStatus, errorStatus }: any) {
       });
 
       if (response.ok) {
-        // TODO: Add logic for successful sign in
-        console.log(await response.json());
+        let json: {isAuth: boolean, token: string} = await response.json();
+        if (json.isAuth) {
+          localStorage.setItem('jwt-token', json.token);
+          setToken(json.token);
+          setPage(PAGE.AUTHED);
+        } else {
+          setErrorStatus(await response.text());
+        }
       } else {
         setErrorStatus(await response.text());
         return;
       }
-
     }catch (e){
       setErrorStatus(`Something went wrong, please try again.`);
       return;
