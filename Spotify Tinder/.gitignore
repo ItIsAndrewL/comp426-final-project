@@ -22,4 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-server/.env
+
+src/server/.env
+src/server/db.sqlite

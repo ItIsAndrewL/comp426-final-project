@@ -1,9 +1,10 @@
 import express from "express";
 import ViteExpress from "vite-express";
-import { User } from "./user.js";
-import  Jwt from 'jsonwebtoken';
+import bodyParser from "body-parser";
+import Jwt from 'jsonwebtoken';
 import cors from 'cors'
 
+import { User } from "./user.js";
 
 const app = express();
 const router = express.Router();
@@ -11,6 +12,7 @@ const secretKey = process.env.JSONSECRETKEY ?? '';
 const options = {expiresIn: '1w'};
 
 app.use(cors());
+app.use(bodyParser.json());
 app.use('/api', router)
 
 const verifyJWT = (req, res, next) => {
@@ -49,8 +51,9 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-router.get("/login", async (req, res) => {
+router.post("/login", async (req, res) => {
   try{
+    console.log(req.body);
     let user = await User.login(req.body);
     if(!user){
       res.status(404).send("Incorrect Username or Password");
