@@ -18,14 +18,14 @@ app.use(bodyParser.json());
 app.use('/api', router)
 
 const verifyJWT = (req: any, res: any, next: any) => {
-  const token = req.headers["x-access-token"];
+  const token = req.headers["jwt-token"];
 
   if(!token){
-    res.status(403).send('User not authenticated');
+    res.status(401).json({isAuth: false, message: "Token does not exist"});
   }else{
     Jwt.verify(token, secretKey, (err: any, decoded: any) => {
       if(err){
-        res.json({authenticated : false, message: 'User not authenticated'});
+        res.status(401).json({isAuth : false, message: 'User not authenticated'});
       } else{
         req.userId = decoded.id;
         next();
@@ -36,7 +36,7 @@ const verifyJWT = (req: any, res: any, next: any) => {
 
 
 router.get("/isAuth", verifyJWT, (req, res) => {
-  res.json({authenticated: true, message: "User is authenticated"});
+  res.json({isAuth: true, message: "User is authenticated"});
 })
 
 router.post("/signup", async (req, res) => {
@@ -57,8 +57,9 @@ router.post("/signup", async (req, res) => {
       res.status(404).send("That account already exists, please log in.");
       return;
     }
-    let token = Jwt.sign(user.json(), secretKey, options);
-    res.json({user: user.json(), token: token})
+    // let token = Jwt.sign(user.json(), secretKey, options);
+    // res.json({user: user.json(), token: token});
+    res.send("Sign-Up Successful");
   }catch (e){
     console.log(e);
     res.status(500).send("Internal server error: " + e);
@@ -77,9 +78,9 @@ router.post("/login", async (req, res) => {
       return;
     }
     let token = Jwt.sign(user.json(), secretKey, options);
-    res.json({user: user.json(), token: token})
+    res.json({isAuth: true, token: token});
   }catch (e){
-    console.log(e)
+    console.log(e);
     res.status(500).send("Internal server error");
   }
 })

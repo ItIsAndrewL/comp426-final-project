@@ -1,1 +1,1 @@
-export enum PAGE {LOGIN, SIGNUP};
+export enum PAGE {LOGIN, SIGNUP, AUTHED, BLANK};
