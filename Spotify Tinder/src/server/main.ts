@@ -3,6 +3,8 @@ import express from "express";
 import ViteExpress from "vite-express";
 import bodyParser from "body-parser";
 import Jwt from 'jsonwebtoken';
+import { randomBytes } from "crypto";
+import { stringify } from "querystring";
 
 //import cors from 'cors'
 
@@ -10,8 +12,14 @@ import { User } from "./user.js";
 
 const app = express();
 const router = express.Router();
+
 const secretKey = process.env.JSONSECRETKEY!;
 const options = {expiresIn: '1w'};
+
+// Spotify API Configuration
+const clientID = process.env.SPOTIFYCLIENTID!;
+const clientSecret = process.env.SPOTIFYCLIENTSECRET!;
+const redirectURI = 'http://localhost:3000/api/callback'
 
 //app.use(cors());
 app.use(bodyParser.json());
@@ -34,8 +42,49 @@ const verifyJWT = (req: any, res: any, next: any) => {
   }
 }
 
+router.get("/spotify-auth", verifyJWT, (req, res) => {
+  // TODO: Skip if user already has authorization code
+  let state = randomBytes(20).toString('hex');
+  let scope = 'user-read-private user-read-email';
+
+  res.redirect('https://accounts.spotify.com/authorize?' +
+    stringify({
+      response_type: 'code',
+      client_id: clientID,
+      scope: scope,
+      redirect_uri: redirectURI,
+      state: state
+    }));
+});
+
+app.get('/callback', function(req, res) {
+
+  var code = req.query.code || null;
+  var state = req.query.state || null;
+
+  // TODO: Save user code in database
+
+  if (state === null) {
+    res.status(500).send("Internal Server Error");
+  } else {
+    var authOptions = {
+      url: 'https://accounts.spotify.com/api/token',
+      form: {
+        code: code,
+        redirect_uri: redirect_uri,
+        grant_type: 'authorization_code'
+      },
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+        'Authorization': 'Basic ' + (new Buffer.from(client_id + ':' + client_secret).toString('base64'))
+      },
+      json: true
+    };
+  }
+});
 
 router.get("/isAuth", verifyJWT, (req, res) => {
+  // TODO: Add spotify auth check here and if it is bad, have frontend send request to auth again?
   res.json({isAuth: true, message: "User is authenticated"});
 })
 
