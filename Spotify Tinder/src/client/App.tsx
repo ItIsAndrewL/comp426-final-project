@@ -1,4 +1,5 @@
 import "./App.css";
+
 import { PAGE } from "./page"
 
 import { useEffect, useState } from "react";
@@ -41,6 +42,12 @@ function App() {
     content = <Signup setPage={setPage} errorStatus={errorStatus} setErrorStatus={setErrorStatus} />;
   } else if (page == PAGE.AUTHED) {
     content = <h1>AUTHED!</h1>;
+
+    fetch('/api/spotify-auth', {
+      headers: {
+        'jwt-token': token
+      }
+    });
   }
 
 
