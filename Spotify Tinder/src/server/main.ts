@@ -19,10 +19,11 @@ const options = { expiresIn: "1w" };
 // Spotify API Configuration
 const clientID = process.env.SPOTIFYCLIENTID!;
 const clientSecret = process.env.SPOTIFYCLIENTSECRET!;
-const redirectURI = "http://localhost:3000/api/callback";
 
 // app.use(cors({origin: 'localhost:3000'}));
-app.use(bodyParser.json()).use("/api", router).use(cors());
+app.use(bodyParser.json())
+  .use("/api", router)
+  .use(cors());
 
 const verifyJWT = (req: any, res: any, next: any) => {
   const token = req.headers["jwt-token"];
@@ -43,61 +44,76 @@ const verifyJWT = (req: any, res: any, next: any) => {
   }
 };
 
-// router.options('/spotify-auth', function (req, res) {
-//   res.setHeader("Access-Control-Allow-Origin", "*");
-//   res.setHeader('Access-Control-Allow-Methods', '*');
-//   res.setHeader("Access-Control-Allow-Headers", "*");
-//   res.end();
+// Application Wide State for Spotify Access Tokens
+let curr_token: string = "";
+let exp_time: number = Date.now(); // Number of milliseconds past Jan 1, 1970 that the token will expire
+
+const getToken = async () => {
+  if (exp_time < Date.now()) return;
+
+  const response = await fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST',
+    body: new URLSearchParams({
+      'grant_type': 'client_credentials',
+    }),
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': 'Basic ' + (Buffer.from(clientID + ':' + clientSecret).toString('base64')),
+    },
+  });
+
+  let json: {"access_token": string, "token_type": string, "expires_in": number} = await response.json();
+  curr_token = json.access_token;
+  exp_time = Date.now() + (json.expires_in * 1000);
+}
+
+// ! Using Authorization Code did not pan out -> Leaving this here until merge
+// router.get("/spotify-auth", verifyJWT, (req, res) => {
+//   // TODO: Skip if user already has authorization code
+//   console.log("TRYING TO AUTH ON SPOTIFY!");
+//   let state = randomBytes(20).toString("hex");
+//   let scope = "user-read-private user-read-email";
+
+//   res.redirect(
+//     "https://accounts.spotify.com/authorize?" +
+//       stringify({
+//         response_type: "code",
+//         client_id: clientID,
+//         scope: scope,
+//         redirect_uri: redirectURI,
+//         state: state,
+//       })
+//   );
+// });
+// app.get("/callback", function (req, res) {
+//   var code = req.query.code || null;
+//   var state = req.query.state || null;
+
+//   // ? Save user code in database here? I think we only need the refresh token
+//   console.log("SPOTIFY AUTHED!!");
+
+//   if (state === null) {
+//     res.status(500).send("Internal Server Error");
+//   } else {
+//     var authOptions = {
+//       url: "https://accounts.spotify.com/api/token",
+//       form: {
+//         code: code,
+//         redirect_uri: redirectURI,
+//         grant_type: "authorization_code",
+//       },
+//       headers: {
+//         "content-type": "application/x-www-form-urlencoded",
+//         Authorization:
+//           "Basic " +
+//           Buffer.from(clientID + ":" + clientSecret).toString("base64"),
+//       },
+//       json: true,
+//     };
+//   }
 // });
 
-router.get("/spotify-auth", verifyJWT, (req, res) => {
-  // TODO: Skip if user already has authorization code
-  console.log("TRYING TO AUTH ON SPOTIFY!");
-  let state = randomBytes(20).toString("hex");
-  let scope = "user-read-private user-read-email";
-
-  res.redirect(
-    "https://accounts.spotify.com/authorize?" +
-      stringify({
-        response_type: "code",
-        client_id: clientID,
-        scope: scope,
-        redirect_uri: redirectURI,
-        state: state,
-      })
-  );
-});
-
-app.get("/callback", function (req, res) {
-  var code = req.query.code || null;
-  var state = req.query.state || null;
-
-  // ? Save user code in database here? I think we only need the refresh token
-  console.log("SPOTIFY AUTHED!!");
-
-  if (state === null) {
-    res.status(500).send("Internal Server Error");
-  } else {
-    var authOptions = {
-      url: "https://accounts.spotify.com/api/token",
-      form: {
-        code: code,
-        redirect_uri: redirectURI,
-        grant_type: "authorization_code",
-      },
-      headers: {
-        "content-type": "application/x-www-form-urlencoded",
-        Authorization:
-          "Basic " +
-          Buffer.from(clientID + ":" + clientSecret).toString("base64"),
-      },
-      json: true,
-    };
-  }
-});
-
 router.get("/isAuth", verifyJWT, (req, res) => {
-  // TODO: Add spotify auth check here and if it is bad, have frontend send request to auth again?
   res.json({ isAuth: true, message: "User is authenticated" });
 });
 

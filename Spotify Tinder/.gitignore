@@ -27,3 +27,4 @@ dist-ssr
 db.sqlite
 /.vite
 /.vite/*
+vite.config.ts.timestamp*
