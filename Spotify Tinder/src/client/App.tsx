@@ -42,7 +42,9 @@ function App() {
     content = <Signup setPage={setPage} errorStatus={errorStatus} setErrorStatus={setErrorStatus} />;
   } else if (page == PAGE.AUTHED) {
     content = <h1>AUTHED!</h1>;
-    fetch('/api/get-track/2TpxZ7JUBn3uw46aR7qd6V', {headers: {'jwt-token': token}}).then(res => res.json()).then(j => console.log(j));
+    fetch('/api/get-next-tracks', {headers: {'jwt-token': token}}).then(res => res.json()).then(j => console.log(j));
+  } else {
+    content = <h1>LOADING!</h1>;
   }
 
 

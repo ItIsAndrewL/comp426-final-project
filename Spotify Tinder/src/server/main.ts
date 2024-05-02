@@ -3,7 +3,6 @@ import express from "express";
 import ViteExpress from "vite-express";
 import bodyParser from "body-parser";
 import Jwt from "jsonwebtoken";
-import { randomBytes } from "crypto";
 import { stringify } from "querystring";
 
 import cors from "cors";
@@ -14,7 +13,7 @@ const app = express();
 const router = express.Router();
 
 const secretKey = process.env.JSONSECRETKEY!;
-const options = { expiresIn: "1w" };
+const options = { expiresIn: "2d" };
 
 // Spotify API Configuration
 const clientID = process.env.SPOTIFYCLIENTID!;
@@ -23,7 +22,7 @@ const clientSecret = process.env.SPOTIFYCLIENTSECRET!;
 // app.use(cors({origin: 'localhost:3000'}));
 app.use(bodyParser.json())
   .use("/api", router)
-  .use(cors());
+  //.use(cors());
 
 const verifyJWT = (req: any, res: any, next: any) => {
   const token = req.headers["jwt-token"];
@@ -37,7 +36,7 @@ const verifyJWT = (req: any, res: any, next: any) => {
           .status(401)
           .json({ isAuth: false, message: "User not authenticated" });
       } else {
-        req.userId = decoded.id;
+        //req.userId = decoded.id;
         next();
       }
     });
@@ -49,7 +48,7 @@ let curr_token: string = "";
 let exp_time: number = Date.now(); // Number of milliseconds past Jan 1, 1970 that the token will expire
 
 const updateToken = async (req: any, res: any, next: any) => {
-  if (exp_time < Date.now()) next();
+  if (exp_time > Date.now()) return next();
 
   const response = await fetch('https://accounts.spotify.com/api/token', {
     method: 'POST',
@@ -71,11 +70,37 @@ const updateToken = async (req: any, res: any, next: any) => {
 router.get("/get-track/:id", verifyJWT, updateToken, async (req, res) => {
   const response = await fetch('https://api.spotify.com/v1/tracks/' + req.params.id, {
     headers: {
-      authorization: 'Bearer ' + curr_token
+      Authorization: 'Bearer ' + curr_token
     }
   });
-  res.json(await response.json());
+  return res.json(await response.json());
 });
+
+router.get("/get-next-tracks", verifyJWT, updateToken, async (req, res) => {
+  /**
+   * Gets the track info of the next 10 tracks to display on the tinder-like feed
+   * ! Do not assume that you will get 10 tracks, there may be less!!
+   */
+  const response = await fetch('https://api.spotify.com/v1/recommendations?' + 
+    // Will be hard coded for now, but later will hope to provide their last liked songs
+    stringify({
+      limit: 10,
+      seed_genres: "pop,indie-pop,rock,indie-rock",
+      market: 'US'
+    }), {
+      headers: {
+        Authorization: 'Bearer ' + curr_token
+      }
+    }
+  );
+  // TODO: Error Handling Here!
+  if (response.ok) {
+    let j = await response.json();
+    return res.json(j.tracks);
+  } else {
+    return res.status(400).json({status: 400, error: "Error!"});
+  }
+})
 
 // ! Using Authorization Code did not pan out -> Leaving this here until merge
 // router.get("/spotify-auth", verifyJWT, (req, res) => {
@@ -124,7 +149,7 @@ router.get("/get-track/:id", verifyJWT, updateToken, async (req, res) => {
 // });
 
 router.get("/isAuth", verifyJWT, (req, res) => {
-  res.json({ isAuth: true, message: "User is authenticated" });
+  return res.json({ isAuth: true, message: "User is authenticated" });
 });
 
 router.post("/signup", async (req, res) => {
