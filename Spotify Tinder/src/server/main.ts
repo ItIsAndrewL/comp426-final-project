@@ -48,8 +48,8 @@ const verifyJWT = (req: any, res: any, next: any) => {
 let curr_token: string = "";
 let exp_time: number = Date.now(); // Number of milliseconds past Jan 1, 1970 that the token will expire
 
-const getToken = async () => {
-  if (exp_time < Date.now()) return;
+const updateToken = async (req: any, res: any, next: any) => {
+  if (exp_time < Date.now()) next();
 
   const response = await fetch('https://accounts.spotify.com/api/token', {
     method: 'POST',
@@ -65,7 +65,17 @@ const getToken = async () => {
   let json: {"access_token": string, "token_type": string, "expires_in": number} = await response.json();
   curr_token = json.access_token;
   exp_time = Date.now() + (json.expires_in * 1000);
+  next();
 }
+
+router.get("/get-track/:id", verifyJWT, updateToken, async (req, res) => {
+  const response = await fetch('https://api.spotify.com/v1/tracks/' + req.params.id, {
+    headers: {
+      authorization: 'Bearer ' + curr_token
+    }
+  });
+  res.json(await response.json());
+});
 
 // ! Using Authorization Code did not pan out -> Leaving this here until merge
 // router.get("/spotify-auth", verifyJWT, (req, res) => {
