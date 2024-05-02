@@ -8,6 +8,7 @@ import Login from "./auth/login";
 import Signup from "./auth/signup"
 import Album_Art from "./album_art";
 import Buttons from "./buttons";
+import SwipeScreen from "./swipt_screen";
 
 function App() {
   const [page, setPage] = useState(PAGE.BLANK);
@@ -44,16 +45,8 @@ function App() {
     content = <Signup setPage={setPage} errorStatus={errorStatus} setErrorStatus={setErrorStatus} />;
   } else if (page == PAGE.AUTHED) {
     content = (
-      <div>
-        <div>
-            <Album_Art/>
-        </div>
-        <div>
-            <Buttons/>
-        </div>
-      </div>
+      <SwipeScreen token={token}/>
     );
-    fetch('/api/get-next-tracks', {headers: {'jwt-token': token}}).then(res => res.json()).then(j => console.log(j));
   } else {
     content = <h1>LOADING!</h1>;
   }

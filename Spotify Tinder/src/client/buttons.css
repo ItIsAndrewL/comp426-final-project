@@ -1,21 +1,22 @@
 button{
-    height: 65px;
-    width: 65px;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    
 }
 
 .checkButton{
     width: 75px;
     height: 75px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .xButton{
     width: 65px;
     height: 65px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .screenDiv{
@@ -26,4 +27,5 @@ button{
 .buttonDiv{
     margin-left: 40px;
     margin-right: 40px;
+    margin-top: 20px;
 }

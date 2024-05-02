@@ -33,13 +33,22 @@ h1 {
     margin-right: 20px;
 }
 
-input, button{
+input{
     margin-left: 20px;
     margin-right: 20px;
     margin-top: 15px;
     margin-bottom: 15px;
     border-radius: 5px;
     height: 40px;
+}
+
+.login-signup-btn{
+    margin-left: 20px !important;
+    margin-right: 20px !important;
+    margin-top: 15px !important;
+    margin-bottom: 15px !important;
+    border-radius: 5px !important;
+    height: 40px !important;
 }
 
 p{
