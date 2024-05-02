@@ -1,4 +1,5 @@
 import "./App.css";
+
 import { PAGE } from "./page"
 
 import { useEffect, useState } from "react";
@@ -52,6 +53,9 @@ function App() {
         </div>
       </div>
     );
+    fetch('/api/get-next-tracks', {headers: {'jwt-token': token}}).then(res => res.json()).then(j => console.log(j));
+  } else {
+    content = <h1>LOADING!</h1>;
   }
 
 
