@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 
 import Login from "./auth/login";
 import Signup from "./auth/signup"
+import Album_Art from "./album_art";
+import Buttons from "./buttons";
 
 function App() {
   const [page, setPage] = useState(PAGE.BLANK);
@@ -40,7 +42,16 @@ function App() {
   } else if (page == PAGE.SIGNUP) {
     content = <Signup setPage={setPage} errorStatus={errorStatus} setErrorStatus={setErrorStatus} />;
   } else if (page == PAGE.AUTHED) {
-    content = <h1>AUTHED!</h1>;
+    content = (
+      <div>
+        <div>
+            <Album_Art/>
+        </div>
+        <div>
+            <Buttons/>
+        </div>
+      </div>
+    );
   }
 
 
