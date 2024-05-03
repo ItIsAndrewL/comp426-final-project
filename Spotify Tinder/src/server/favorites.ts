@@ -40,13 +40,27 @@ export class Favorites {
             return null;
         }
     }
-    to_json() {
+
+    static async get_last_5_songs(user_id: number): Promise<string[] | null> {
+        let favorites = await Favorites.get_user_favorites(user_id);
+        if (favorites == null) {
+            return null;
+        }
+        return favorites.map((val: any) => val.#favorite_id).slice(0, 4);
+    }
+
+    to_json(song: any) {
         /**
          * Converts object to JSON without the user_id field
          */
         return {
             "id": this.#id,
-            "song_id": this.#favorite_id
+            "song_id": this.#favorite_id,
+            "song": song
         };
+    }
+
+    get song_id() {
+        return this.#favorite_id;
     }
 }

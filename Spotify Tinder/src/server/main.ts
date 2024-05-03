@@ -81,19 +81,6 @@ router.get("/get-track/:id", verifyJWT, updateToken, async (req, res) => {
   return res.json(await response.json());
 });
 
-router.get("/get-tracks/:ids", verifyJWT, updateToken, async (req, res) => {
-  /** Gets a list of songs by their ids
-   * @param ids should be a comma separated list of ids with NO spaces in between
-   */
-  const response = await fetch("https://api.spotify.com/v1/tracks?ids=" + req.params.ids, {
-    headers: {
-      Authorization: 'Bearer ' + curr_token
-    }
-  });
-  // TODO: Error handling here
-  return res.json(await response.json());
-})
-
 router.get("/get-next-tracks", verifyJWT, updateToken, async (req, res) => {
   /**
    * Gets the track info of the next 10 tracks to display on the tinder-like feed
@@ -122,17 +109,32 @@ router.get("/get-next-tracks", verifyJWT, updateToken, async (req, res) => {
 
 // Routes for Favorites Storage
 
-router.get("/favorites", verifyJWT, async (req, res) => {
+router.get("/favorites", verifyJWT, updateToken, async (req, res) => {
   /**
    * Gets a list of Favorites, ordered by most recently added by their id
    * 
-   * @returns {id: number, song_id: string}[] list of json objects
+   * @returns {id: number, song_id: string, song: Song_obj}[] list of json objects
    */
   let favorites: Favorites[] | null = await Favorites.get_user_favorites(req.userId);
   if (favorites == null) {
     return res.status(500).send("Internal Server Error.");
   }
-  return res.json(favorites.map(val => val.to_json()));
+  // TODO: Need to make a request for every 100 songs
+  let ids = favorites.reduce((acc: string, val: Favorites) => acc += val.song_id + ",", "").slice(0, -1);
+  const response = await fetch("https://api.spotify.com/v1/tracks?ids=" + ids, {
+    headers: {
+      Authorization: 'Bearer ' + curr_token
+    }
+  });
+
+  if (!response.ok) {
+    return res.status(500).send("Internal Server Error.");
+  }
+
+  let songs = (await response.json()).tracks;
+  console.log(songs.length);
+
+  return res.json(favorites.map((val, i) => val.to_json(songs[i])));
 });
 
 router.post("/favorite/:songId", verifyJWT, async (req, res) => {
