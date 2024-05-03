@@ -77,8 +77,22 @@ router.get("/get-track/:id", verifyJWT, updateToken, async (req, res) => {
       Authorization: 'Bearer ' + curr_token
     }
   });
+  // TODO: Error handling here
   return res.json(await response.json());
 });
+
+router.get("/get-tracks/:ids", verifyJWT, updateToken, async (req, res) => {
+  /** Gets a list of songs by their ids
+   * @param ids should be a comma separated list of ids with NO spaces in between
+   */
+  const response = await fetch("https://api.spotify.com/v1/tracks?ids=" + req.params.ids, {
+    headers: {
+      Authorization: 'Bearer ' + curr_token
+    }
+  });
+  // TODO: Error handling here
+  return res.json(await response.json());
+})
 
 router.get("/get-next-tracks", verifyJWT, updateToken, async (req, res) => {
   /**
