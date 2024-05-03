@@ -12,7 +12,7 @@ export class User {
     }
 
     static async createUser(userName: string, password: string){
-        // Test for username/password already existing
+        // TODO: Test for username/password already existing
         let rows = await db.all(`SELECT id FROM Users WHERE userName = ? AND password = ?`, userName, User.#hash(password));
         if (rows.length > 0) {
             return null;
@@ -35,6 +35,19 @@ export class User {
         catch (e){
             console.log(e);
             return null;
+        }
+    }
+
+    static async verify(user_id: number): Promise<boolean> {
+        try {
+            let result = await db.get('SELECT * FROM Users WHERE id = ?', user_id);
+            if (!result) {
+                return false;
+            } else {
+                return true;
+            }
+        } catch (e) {
+            return false;
         }
     }
 

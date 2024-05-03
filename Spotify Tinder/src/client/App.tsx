@@ -1,4 +1,5 @@
 import "./App.css";
+
 import { PAGE } from "./page"
 
 import { useEffect, useState } from "react";
@@ -41,6 +42,9 @@ function App() {
     content = <Signup setPage={setPage} errorStatus={errorStatus} setErrorStatus={setErrorStatus} />;
   } else if (page == PAGE.AUTHED) {
     content = <h1>AUTHED!</h1>;
+    // fetch('/api/get-next-tracks', {headers: {'jwt-token': token}}).then(res => res.json()).then(j => console.log(j));
+  } else {
+    content = <h1>LOADING!</h1>;
   }
 
 
