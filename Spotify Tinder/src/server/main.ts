@@ -147,6 +147,21 @@ router.post("/favorite/:songId", verifyJWT, async (req, res) => {
   }
 });
 
+router.delete("/favorite/:id", verifyJWT, async (req, res) => {
+  let id;
+  try {
+    id = Number(req.params.id);
+  } catch (e) {
+    return res.status(400).send("Request Invalid")
+  }
+
+  let worked = await Favorites.remove_favorite(id, req.userId);
+  if (worked) {
+    res.send("Success!");
+  } else {
+    res.status(404).send("Backend Error or did not exist!")
+  }
+});
 
 // Sign Up / Login Routes
 

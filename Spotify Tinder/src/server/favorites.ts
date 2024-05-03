@@ -30,7 +30,7 @@ export class Favorites {
         /**
          * Gets a list of users favorites, ordered according to their last added
          * 
-         * @params user_id id of the user
+         * @param user_id id of the user
          * @returns Promise<Favorites[]> ordered list of favorite objects, null on error
          */
         try {
@@ -38,6 +38,25 @@ export class Favorites {
             return result.map((row: any) => new Favorites(row.id, row.user_id, row.song_id)).sort((a: Favorites, b: Favorites) => b.#id - a.#id);
         } catch (e) {
             return null;
+        }
+    }
+
+    static async remove_favorite(id: number, user_id: number): Promise<boolean> {
+        /**
+         * Attempts to return the specified favorite if the user_id is a match
+         * 
+         * @param id of the favorite table
+         * @param user_id of the user who's favorite this is
+         */
+        try {
+            let result = await db.get("SELECT * FROM Favorites WHERE user_id = ? AND id = ?", user_id, id);
+            if (!result) {
+                return false;
+            }
+            await db.run("DELETE FROM Favorites WHERE id = ?", id);
+            return true;
+        } catch (e) {
+            return false;
         }
     }
 
