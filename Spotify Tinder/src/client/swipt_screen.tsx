@@ -18,6 +18,10 @@ function SwipeScreen({token}: {token: string}){
     const [songs, setSongs] = useState<EmptySongArray>([]);
     const [currentSongIndex, setCurrentSongIndex] = useState(0)
     const [audioRef, setAudioRef] = useState<HTMLAudioElement | null>(null)
+
+    useEffect( () => {
+        fetchDataAndUpdateState();
+    }, []);
   
 
     async function fetchData(): Promise<Song[]>{
@@ -42,19 +46,16 @@ function SwipeScreen({token}: {token: string}){
         }
     }
 
-    useEffect( () => {
-        async function fetchDataAndUpdateState() {
-            const data = await fetchData();
-            setSongs(data);
-            setCurrentSongIndex(0)
-        }
-        fetchDataAndUpdateState();
-    }, []);
+    async function fetchDataAndUpdateState() {
+        const data = await fetchData();
+        setSongs(data);
+        setCurrentSongIndex(0);
+        resetAudio();
+    };
 
-    useEffect(() => {
+    function resetAudio(){
         const audio = new Audio();
         setAudioRef(audio)
-
         if(currentSongIndex !== null && songs[currentSongIndex] && songs[currentSongIndex].preview_url){
             audio.src = songs[currentSongIndex].preview_url ?? '';
             audio.play()
@@ -64,10 +65,17 @@ function SwipeScreen({token}: {token: string}){
             audio.pause;
             audio.src = ''
         };
-    }, [currentSongIndex, songs])
+    }
+
+    
 
     const handleNextSong = () => {
-        setCurrentSongIndex((prevIndex) => (prevIndex + 1) % songs.length);
+        if(currentSongIndex < songs.length - 1){
+            setCurrentSongIndex((prevIndex) => (prevIndex + 1) % songs.length);
+        }else{
+            fetchDataAndUpdateState();
+        }
+        
     };
     
     const handleLikeDislike = (like: boolean) => {
@@ -77,7 +85,20 @@ function SwipeScreen({token}: {token: string}){
         }
 
         handleNextSong()
+
+        if(like){
+            console.log("I like:", songs[currentSongIndex].name)
+        }else{
+            console.log("I don't like:", songs[currentSongIndex].name)
+        }
     }
+
+
+if(songs.length === 0){
+    return(
+        <p>loding...</p>
+    )
+}
 return(
     <div>
         {songs.length > 0 && (
