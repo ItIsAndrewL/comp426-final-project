@@ -8,6 +8,7 @@ import { stringify } from "querystring";
 import cors from "cors";
 
 import { User } from "./user.js";
+import { Favorites } from "./favorites.js";
 
 const app = express();
 const router = express.Router();
@@ -30,13 +31,16 @@ const verifyJWT = (req: any, res: any, next: any) => {
   if (!token) {
     res.status(401).json({ isAuth: false, message: "Token does not exist" });
   } else {
-    Jwt.verify(token, secretKey, (err: any, decoded: any) => {
+    Jwt.verify(token, secretKey, async (err: any, decoded: any) => {
       if (err) {
         res
           .status(401)
           .json({ isAuth: false, message: "User not authenticated" });
       } else {
-        //req.userId = decoded.id;
+        if (!await User.verify(decoded.id)) {
+          return res.status(404).json({ isAuth: false, message: "User not found" });
+        }
+        req.userId = decoded.id;
         next();
       }
     });
@@ -100,53 +104,35 @@ router.get("/get-next-tracks", verifyJWT, updateToken, async (req, res) => {
   } else {
     return res.status(400).json({status: 400, error: "Error!"});
   }
-})
+});
 
-// ! Using Authorization Code did not pan out -> Leaving this here until merge
-// router.get("/spotify-auth", verifyJWT, (req, res) => {
-//   // TODO: Skip if user already has authorization code
-//   console.log("TRYING TO AUTH ON SPOTIFY!");
-//   let state = randomBytes(20).toString("hex");
-//   let scope = "user-read-private user-read-email";
+// Routes for Favorites Storage
 
-//   res.redirect(
-//     "https://accounts.spotify.com/authorize?" +
-//       stringify({
-//         response_type: "code",
-//         client_id: clientID,
-//         scope: scope,
-//         redirect_uri: redirectURI,
-//         state: state,
-//       })
-//   );
-// });
-// app.get("/callback", function (req, res) {
-//   var code = req.query.code || null;
-//   var state = req.query.state || null;
+router.get("/favorites", verifyJWT, async (req, res) => {
+  /**
+   * Gets a list of Favorites, ordered by most recently added by their id
+   * 
+   * @returns {id: number, song_id: string}[] list of json objects
+   */
+  let favorites: Favorites[] | null = await Favorites.get_user_favorites(req.userId);
+  if (favorites == null) {
+    return res.status(500).send("Internal Server Error.");
+  }
+  return res.json(favorites.map(val => val.to_json()));
+});
 
-//   // ? Save user code in database here? I think we only need the refresh token
-//   console.log("SPOTIFY AUTHED!!");
+router.post("/favorite/:songId", verifyJWT, async (req, res) => {
+  // TODO: Could possibly make sure that the songId is a valid spotify song id
+  let added = await Favorites.add_favorite(req.userId, req.params.songId);
+  if (added) {
+    res.status(200).send("Added!");
+  } else {
+    res.status(500).send("Internal Server Error.");
+  }
+});
 
-//   if (state === null) {
-//     res.status(500).send("Internal Server Error");
-//   } else {
-//     var authOptions = {
-//       url: "https://accounts.spotify.com/api/token",
-//       form: {
-//         code: code,
-//         redirect_uri: redirectURI,
-//         grant_type: "authorization_code",
-//       },
-//       headers: {
-//         "content-type": "application/x-www-form-urlencoded",
-//         Authorization:
-//           "Basic " +
-//           Buffer.from(clientID + ":" + clientSecret).toString("base64"),
-//       },
-//       json: true,
-//     };
-//   }
-// });
+
+// Sign Up / Login Routes
 
 router.get("/isAuth", verifyJWT, (req, res) => {
   return res.json({ isAuth: true, message: "User is authenticated" });
