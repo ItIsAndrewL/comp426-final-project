@@ -1,5 +1,5 @@
 import "./App.css";
-import {Song} from './swipt_screen'
+import {Song} from './swipe_screen'
 import { useState } from "react";
 
 function Album_Art({song}: {song: Song}) {

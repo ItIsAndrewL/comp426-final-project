@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import Album_Art from "./album_art";
-import Buttons from "./buttons";
+import Album_Art from "./album_art.js";
+import Buttons from "./buttons.js";
 
 export interface Song {
+    id: string;
     name: string;
     preview_url: string | null;
     album: {
@@ -16,12 +17,37 @@ export interface Song {
 function SwipeScreen({token}: {token: string}){
     type EmptySongArray = Song[];
     const [songs, setSongs] = useState<EmptySongArray>([]);
-    const [currentSongIndex, setCurrentSongIndex] = useState(0)
+    const [currentSongIndex, setCurrentSongIndex] = useState(-1)
     const [audioRef, setAudioRef] = useState<HTMLAudioElement | null>(null)
 
     useEffect( () => {
         fetchDataAndUpdateState();
     }, []);
+
+    useEffect(() => {
+        if (songs.length > 0 && currentSongIndex === -1) {
+          setCurrentSongIndex(0);
+        }
+      }, [songs, currentSongIndex]);
+
+    useEffect(() => {
+        const handleAudioPlayback = () => {
+            if (audioRef) {
+              audioRef.pause();
+              audioRef.src = '';
+            }
+      
+            if (currentSongIndex >= 0 && currentSongIndex < songs.length && songs[currentSongIndex] && songs[currentSongIndex].preview_url) {
+              const audio = new Audio(songs[currentSongIndex].preview_url ?? '');
+              setAudioRef(audio);
+              audio.play();
+            } else {
+              console.log('Invalid index or no preview URL available');
+            }
+          };
+      
+          handleAudioPlayback();
+    }, [songs, currentSongIndex]);
   
 
     async function fetchData(): Promise<Song[]>{
@@ -31,6 +57,7 @@ function SwipeScreen({token}: {token: string}){
             const mappedSongs: Song[] = data
             .filter((item: any) => item.preview_url !== null)
             .map((item: any) => ({
+                id: item.id,
                 name: item.name,
                 preview_url: item.preview_url,
                 album:{
@@ -49,31 +76,36 @@ function SwipeScreen({token}: {token: string}){
     async function fetchDataAndUpdateState() {
         const data = await fetchData();
         setSongs(data);
-        setCurrentSongIndex(0);
-        resetAudio();
     };
 
-    function resetAudio(){
-        const audio = new Audio();
-        setAudioRef(audio)
-        if(currentSongIndex !== null && songs[currentSongIndex] && songs[currentSongIndex].preview_url){
-            audio.src = songs[currentSongIndex].preview_url ?? '';
-            audio.play()
-        }
+    // function resetAudio(){
+    //     if (audioRef) {
+    //         audioRef.pause();
+    //         audioRef.src = '';
+    //     }
 
-        return () => {
-            audio.pause;
-            audio.src = ''
-        };
-    }
+    //     if(currentSongIndex >= 0 && currentSongIndex < songs.length && songs[currentSongIndex] && songs[currentSongIndex].preview_url){
+    //         const audio = new Audio();
+    //         setAudioRef(audio);
+    //         audio.src = songs[currentSongIndex].preview_url ?? '';
+    //         audio.play()
+    //     } else {
+    //         console.log('Invalid index or no preview URL available');
+    //       }
+
+    // }
 
     
 
     const handleNextSong = () => {
         if(currentSongIndex < songs.length - 1){
             setCurrentSongIndex((prevIndex) => (prevIndex + 1) % songs.length);
+            // resetAudio();
         }else{
-            fetchDataAndUpdateState();
+            fetchDataAndUpdateState().then(() => {
+                setCurrentSongIndex(0);
+            });
+            // resetAudio();
         }
         
     };

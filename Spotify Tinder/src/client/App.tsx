@@ -8,7 +8,7 @@ import Login from "./auth/login";
 import Signup from "./auth/signup"
 import Album_Art from "./album_art";
 import Buttons from "./buttons";
-import SwipeScreen from "./swipt_screen";
+import SwipeScreen from "./swipe_screen";
 
 function App() {
   const [page, setPage] = useState(PAGE.BLANK);
