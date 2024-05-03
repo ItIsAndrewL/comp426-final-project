@@ -102,51 +102,6 @@ router.get("/get-next-tracks", verifyJWT, updateToken, async (req, res) => {
   }
 })
 
-// ! Using Authorization Code did not pan out -> Leaving this here until merge
-// router.get("/spotify-auth", verifyJWT, (req, res) => {
-//   // TODO: Skip if user already has authorization code
-//   console.log("TRYING TO AUTH ON SPOTIFY!");
-//   let state = randomBytes(20).toString("hex");
-//   let scope = "user-read-private user-read-email";
-
-//   res.redirect(
-//     "https://accounts.spotify.com/authorize?" +
-//       stringify({
-//         response_type: "code",
-//         client_id: clientID,
-//         scope: scope,
-//         redirect_uri: redirectURI,
-//         state: state,
-//       })
-//   );
-// });
-// app.get("/callback", function (req, res) {
-//   var code = req.query.code || null;
-//   var state = req.query.state || null;
-
-//   // ? Save user code in database here? I think we only need the refresh token
-//   console.log("SPOTIFY AUTHED!!");
-
-//   if (state === null) {
-//     res.status(500).send("Internal Server Error");
-//   } else {
-//     var authOptions = {
-//       url: "https://accounts.spotify.com/api/token",
-//       form: {
-//         code: code,
-//         redirect_uri: redirectURI,
-//         grant_type: "authorization_code",
-//       },
-//       headers: {
-//         "content-type": "application/x-www-form-urlencoded",
-//         Authorization:
-//           "Basic " +
-//           Buffer.from(clientID + ":" + clientSecret).toString("base64"),
-//       },
-//       json: true,
-//     };
-//   }
-// });
 
 router.get("/isAuth", verifyJWT, (req, res) => {
   return res.json({ isAuth: true, message: "User is authenticated" });
