@@ -78,6 +78,20 @@ function SwipeScreen({token}: {token: string}){
         setSongs(data);
     };
 
+    async function addToFavorites(){
+        try{
+            const response = await fetch("/api/favorite/" + songs[currentSongIndex].id, {method: "POST", headers: {'jwt-token': token}});
+            if(response.ok){
+                console.log("song has been added")
+            }else{
+                console.log("song has not been added")
+            }
+
+        }catch (e){
+            console.log("There's been an error: ",e)
+        }
+    }
+
     // function resetAudio(){
     //     if (audioRef) {
     //         audioRef.pause();
@@ -119,7 +133,7 @@ function SwipeScreen({token}: {token: string}){
         handleNextSong()
 
         if(like){
-            console.log("I like:", songs[currentSongIndex].name)
+            addToFavorites();
         }else{
             console.log("I don't like:", songs[currentSongIndex].name)
         }
@@ -128,7 +142,7 @@ function SwipeScreen({token}: {token: string}){
 
 if(songs.length === 0){
     return(
-        <p>loding...</p>
+        <p>loading...</p>
     )
 }
 return(
