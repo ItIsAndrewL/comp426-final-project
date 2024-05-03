@@ -77,48 +77,82 @@ router.get("/get-track/:id", verifyJWT, updateToken, async (req, res) => {
       Authorization: 'Bearer ' + curr_token
     }
   });
+  // TODO: Error handling here
   return res.json(await response.json());
 });
 
 router.get("/get-next-tracks", verifyJWT, updateToken, async (req, res) => {
   /**
-   * Gets the track info of the next 10 tracks to display on the tinder-like feed
-   * ! Do not assume that you will get 10 tracks, there may be less!!
+   * Gets the track info of the next 20 tracks to display on the tinder-like feed
+   * ! Do not assume that you will get 20 tracks, there may be less!!
    */
-  const response = await fetch('https://api.spotify.com/v1/recommendations?' + 
-    // Will be hard coded for now, but later will hope to provide their last liked songs
-    stringify({
-      limit: 10,
-      seed_genres: "pop,indie-pop,rock,indie-rock",
-      market: 'US'
-    }), {
-      headers: {
-        Authorization: 'Bearer ' + curr_token
+  let last_songs = await Favorites.get_last_5_songs(req.userId);
+  if (last_songs === null) {
+    return res.status(500).send("Internal Server Error");
+  }
+
+  let response;
+  if (last_songs.length === 0) {
+    response = await fetch('https://api.spotify.com/v1/recommendations?' + 
+      stringify({
+        limit: 20,
+        seed_genres: "pop,indie-pop,rock,country",
+        market: 'US'
+      }), {
+        headers: {
+          Authorization: 'Bearer ' + curr_token
+        }
       }
-    }
-  );
-  // TODO: Error Handling Here!
+    );
+  } else {
+    response = await fetch('https://api.spotify.com/v1/recommendations?' + 
+      stringify({
+        limit: 20,
+        seed_tracks: last_songs.reduce((acc, val) => acc += val + ",","").slice(0, -1),
+        market: 'US'
+      }), {
+        headers: {
+          Authorization: 'Bearer ' + curr_token
+        }
+      }
+    );
+  }
+
   if (response.ok) {
     let j = await response.json();
     return res.json(j.tracks);
   } else {
-    return res.status(400).json({status: 400, error: "Error!"});
+    console.log(response);
+    return res.status(400).json({status: 400, error: "Spotify Error!"});
   }
 });
 
 // Routes for Favorites Storage
 
-router.get("/favorites", verifyJWT, async (req, res) => {
+router.get("/favorites", verifyJWT, updateToken, async (req, res) => {
   /**
    * Gets a list of Favorites, ordered by most recently added by their id
    * 
-   * @returns {id: number, song_id: string}[] list of json objects
+   * @returns {id: number, song_id: string, song: Song_obj}[] list of json objects
    */
   let favorites: Favorites[] | null = await Favorites.get_user_favorites(req.userId);
   if (favorites == null) {
     return res.status(500).send("Internal Server Error.");
   }
-  return res.json(favorites.map(val => val.to_json()));
+  // TODO: Need to make a request for every 100 songs
+  let ids = favorites.reduce((acc: string, val: Favorites) => acc += val.song_id + ",", "").slice(0, -1);
+  const response = await fetch("https://api.spotify.com/v1/tracks?ids=" + ids, {
+    headers: {
+      Authorization: 'Bearer ' + curr_token
+    }
+  });
+
+  if (!response.ok) {
+    return res.status(500).send("Internal Server Error.");
+  }
+
+  let songs = (await response.json()).tracks;
+  return res.json(favorites.map((val, i) => val.to_json(songs[i])));
 });
 
 router.post("/favorite/:songId", verifyJWT, async (req, res) => {
@@ -131,6 +165,21 @@ router.post("/favorite/:songId", verifyJWT, async (req, res) => {
   }
 });
 
+router.delete("/favorite/:id", verifyJWT, async (req, res) => {
+  let id;
+  try {
+    id = Number(req.params.id);
+  } catch (e) {
+    return res.status(400).send("Request Invalid")
+  }
+
+  let worked = await Favorites.remove_favorite(id, req.userId);
+  if (worked) {
+    res.send("Success!");
+  } else {
+    res.status(404).send("Backend Error or did not exist!")
+  }
+});
 
 // Sign Up / Login Routes
 

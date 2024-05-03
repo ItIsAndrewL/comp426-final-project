@@ -30,7 +30,7 @@ export class Favorites {
         /**
          * Gets a list of users favorites, ordered according to their last added
          * 
-         * @params user_id id of the user
+         * @param user_id id of the user
          * @returns Promise<Favorites[]> ordered list of favorite objects, null on error
          */
         try {
@@ -40,13 +40,46 @@ export class Favorites {
             return null;
         }
     }
-    to_json() {
+
+    static async remove_favorite(id: number, user_id: number): Promise<boolean> {
+        /**
+         * Attempts to return the specified favorite if the user_id is a match
+         * 
+         * @param id of the favorite table
+         * @param user_id of the user who's favorite this is
+         */
+        try {
+            let result = await db.get("SELECT * FROM Favorites WHERE user_id = ? AND id = ?", user_id, id);
+            if (!result) {
+                return false;
+            }
+            await db.run("DELETE FROM Favorites WHERE id = ?", id);
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    static async get_last_5_songs(user_id: number): Promise<string[] | null> {
+        let favorites = await Favorites.get_user_favorites(user_id);
+        if (favorites == null) {
+            return null;
+        }
+        return favorites.map((val: any) => val.#favorite_id).slice(0, 4);
+    }
+
+    to_json(song: any) {
         /**
          * Converts object to JSON without the user_id field
          */
         return {
             "id": this.#id,
-            "song_id": this.#favorite_id
+            "song_id": this.#favorite_id,
+            "song": song
         };
+    }
+
+    get song_id() {
+        return this.#favorite_id;
     }
 }
