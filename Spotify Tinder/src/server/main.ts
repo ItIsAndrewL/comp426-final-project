@@ -8,6 +8,7 @@ import { stringify } from "querystring";
 import cors from "cors";
 
 import { User } from "./user.js";
+import { Favorites } from "./favorites.js";
 
 const app = express();
 const router = express.Router();
@@ -30,13 +31,16 @@ const verifyJWT = (req: any, res: any, next: any) => {
   if (!token) {
     res.status(401).json({ isAuth: false, message: "Token does not exist" });
   } else {
-    Jwt.verify(token, secretKey, (err: any, decoded: any) => {
+    Jwt.verify(token, secretKey, async (err: any, decoded: any) => {
       if (err) {
         res
           .status(401)
           .json({ isAuth: false, message: "User not authenticated" });
       } else {
-        //req.userId = decoded.id;
+        if (!await User.verify(decoded.id)) {
+          return res.status(404).json({ isAuth: false, message: "User not found" });
+        }
+        req.userId = decoded.id;
         next();
       }
     });
@@ -100,8 +104,35 @@ router.get("/get-next-tracks", verifyJWT, updateToken, async (req, res) => {
   } else {
     return res.status(400).json({status: 400, error: "Error!"});
   }
-})
+});
 
+// Routes for Favorites Storage
+
+router.get("/favorites", verifyJWT, async (req, res) => {
+  /**
+   * Gets a list of Favorites, ordered by most recently added by their id
+   * 
+   * @returns {id: number, song_id: string}[] list of json objects
+   */
+  let favorites: Favorites[] | null = await Favorites.get_user_favorites(req.userId);
+  if (favorites == null) {
+    return res.status(500).send("Internal Server Error.");
+  }
+  return res.json(favorites.map(val => val.to_json()));
+});
+
+router.post("/favorite/:songId", verifyJWT, async (req, res) => {
+  // TODO: Could possibly make sure that the songId is a valid spotify song id
+  let added = await Favorites.add_favorite(req.userId, req.params.songId);
+  if (added) {
+    res.status(200).send("Added!");
+  } else {
+    res.status(500).send("Internal Server Error.");
+  }
+});
+
+
+// Sign Up / Login Routes
 
 router.get("/isAuth", verifyJWT, (req, res) => {
   return res.json({ isAuth: true, message: "User is authenticated" });

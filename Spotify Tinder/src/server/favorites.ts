@@ -17,7 +17,6 @@ export class Favorites {
          * 
          * @returns Promise<boolean> if adding succeeded
          */
-        // TODO: Make sure user_id exists in user table
         // TODO: Make sure favorite is not a duplicate for the user
         try {
             await db.run('INSERT INTO Favorites VALUES (NULL, ?, ?)', user_id, favorite);
@@ -34,12 +33,20 @@ export class Favorites {
          * @params user_id id of the user
          * @returns Promise<Favorites[]> ordered list of favorite objects, null on error
          */
-        // TODO: Make sure user_id exists in user table
         try {
-            let result = await db.all("SELECT (id, song_id) FROM Favorites WHERE user_id = ?", user_id);
-            return result.sort((a: any,b: any) => b.id - a.id);
+            let result = await db.all("SELECT * FROM Favorites WHERE user_id = ?", user_id);
+            return result.map((row: any) => new Favorites(row.id, row.user_id, row.song_id)).sort((a: Favorites, b: Favorites) => b.#id - a.#id);
         } catch (e) {
             return null;
         }
+    }
+    to_json() {
+        /**
+         * Converts object to JSON without the user_id field
+         */
+        return {
+            "id": this.#id,
+            "song_id": this.#favorite_id
+        };
     }
 }
