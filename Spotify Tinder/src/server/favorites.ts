@@ -4,22 +4,28 @@ export class Favorites {
     #id: number;
     #user_id: number;
     #favorite_id: string; // Spotify song ID
+    #title: string;
+    #artists: string;
+    #album_url: string;
 
-    constructor(id: number, user_id: number, favorite: string) {
+    constructor(id: number, user_id: number, favorite: string, title: string = "", artists: string = "", album_url: string = "") {
         this.#id = id;
         this.#user_id = user_id;
         this.#favorite_id = favorite;
+        this.#title = title;
+        this.#artists = artists;
+        this.#album_url = album_url;
     }
 
-    static async add_favorite(user_id: number, favorite: string): Promise<boolean> {
+    static async add_favorite(user_id: number, favorite_id: string, title: string = "", artists: string = "", album_url: string = ""): Promise<boolean> {
         /**
          * Add a song id to the user's favorite list
          * 
-         * @returns Promise<boolean> if adding succeeded
+         * @return Promise<boolean> if adding succeeded
          */
         // TODO: Make sure favorite is not a duplicate for the user
         try {
-            await db.run('INSERT INTO Favorites VALUES (NULL, ?, ?)', user_id, favorite);
+            await db.run('INSERT INTO Favorites VALUES (NULL, ?, ?, ?, ?, ?)', user_id, favorite_id, title, artists, album_url);
             return true;
         } catch (e) {
             return false;
@@ -35,7 +41,7 @@ export class Favorites {
          */
         try {
             let result = await db.all("SELECT * FROM Favorites WHERE user_id = ?", user_id);
-            return result.map((row: any) => new Favorites(row.id, row.user_id, row.song_id)).sort((a: Favorites, b: Favorites) => b.#id - a.#id);
+            return result.map((row: any) => new Favorites(row.id, row.user_id, row.song_id, row.title, row.artist, row.album_url)).sort((a: Favorites, b: Favorites) => b.#id - a.#id);
         } catch (e) {
             return null;
         }
@@ -68,14 +74,16 @@ export class Favorites {
         return favorites.map((val: any) => val.#favorite_id).slice(0, 4);
     }
 
-    to_json(song: any) {
+    to_json() {
         /**
          * Converts object to JSON without the user_id field
          */
         return {
             "id": this.#id,
             "song_id": this.#favorite_id,
-            "song": song
+            "title": this.#title,
+            "artists": this.#artists,
+            "song_url": this.#album_url
         };
     }
 
