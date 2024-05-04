@@ -6,14 +6,19 @@ Music Tinder Web Application Project - Swipe on song snippets to create a discov
 
 To get started on development follow these instructions:
 
+[Register your App with the Spotify API](https://developer.spotify.com/documentation/web-api/tutorials/getting-started#create-an-app)
+Then find your Client ID and Client Secret on the settings page
+
 Install Dependencies
 
 1) `cd Spotify Tinder`
 2) `npm install`
 3) In the current directory, create a `.env` file with the contents:
 
-```json
+```
 JSONSECRETKEY = <UUID Generated Value>
+SPOTIFYCLIENTID = <Spotify Client ID>
+SPOTIFYCLIENTSECRET = <Spotify Client Secret>
 ```
 You can generate your own UUID [here](https://www.uuidgenerator.net/).
 
@@ -37,7 +42,7 @@ For the final project assignment, we must complete the following:
 Here's how we plan on doing this:
 
 1) The main part of the frontend will be a tinder-like scrolling feature where you will have "swipe right/like" and "swipe left/dislike" buttons. Upon swiping another song snippet will be loaded in. This should satisfy the event-driver and interactive portions.
-2) The backend will need to store user log-ins. We can keep track of users liked and disliked songs so we don't send them a song they've heard before on another session. We can also store session playlists for each user. A session playlist will consist of all the liked songs for that session so the user can go back in on spotify and listen to them.
+2) The backend will need to store user log-ins. We can store liked song playlists for each user. A liked song playlist will consist of all the songs that the users has liked so the user can find them on spotify later and listen to them.
 3) The third party API we plan on using is the Spotify API to get the song information/snippets. The route we will most likely need to use for this is `GET /tracks/{id}`. [Route Documentation](https://developer.spotify.com/documentation/web-api/reference/get-track)
 4) We plan on having a user sign-in component so users can see past session playlists and possibly link directly into their spotify account
 5) The user experience will mostly be in the swiping page, which should have a nice, pleasing design
@@ -56,7 +61,8 @@ The swipe page will consist of a center display, where the cover art, artist nam
 
 ### playlist_page
 
-The playlist page will house all of the users liked playlists. Users should be able to port their liked playlists to actual spotify playlists that they can save to their account.
+The playlist page will house all of the users liked playlists. 
+> This may be added later: Users should be able to port their liked playlists to actual spotify playlists that they can save to their account.
 
 ## Technical Details
 
