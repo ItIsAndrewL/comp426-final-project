@@ -152,6 +152,7 @@ router.post("/favorite", verifyJWT, async (req: any, res) => {
    * @returns 200 if ok, 500 if fail
    */
   if (req.body.song_id === undefined) {
+    console.log(req.body.song_id)
     return res.status(400).send("Bad Request, Song_id missing");
   }
 

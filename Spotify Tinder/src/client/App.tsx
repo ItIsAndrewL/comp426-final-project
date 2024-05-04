@@ -40,12 +40,10 @@ function App() {
     localStorage.removeItem('jwt-token');
   }
 
-  let favorites = () => {
-    setShowComponent(showComponent === 'A' ? 'B' : 'A');
-  }
-
   let content;
-  if (page == PAGE.LOGIN) {
+  if(page == PAGE.FAVORITES) {
+    content = <Favorites token={token} setPage={setPage}/>
+  } else if (page == PAGE.LOGIN) {
     content = <Login setPage={setPage} errorStatus={errorStatus} setErrorStatus={setErrorStatus} setToken={setToken} />;
   } else if (page == PAGE.SIGNUP) {
     content = <Signup setPage={setPage} errorStatus={errorStatus} setErrorStatus={setErrorStatus} />;
@@ -53,7 +51,7 @@ function App() {
     content = (
       <div>
       <div>
-          <button onClick={() => {favorites()}} >Favorites</button>
+          <button onClick={() => {setPage(PAGE.FAVORITES)}} >Favorites</button>
       </div>
       <SwipeScreen token={token}/>
       </div>
@@ -66,11 +64,7 @@ function App() {
   return (
     <div className="App">
       <h1 className="Title">Spotify Tinder</h1>
-      {showComponent === 'A' ? (
          <div>{content}</div>
-      ) : (
-        <Favorites token={token}/>
-      )}
     </div>
   );
 

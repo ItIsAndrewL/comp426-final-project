@@ -1,0 +1,10 @@
+.song{
+    display: flex;
+    flex-direction: row;
+    text-align: start;
+    margin: 5px;
+}
+
+.title{
+    width: 500px;
+}

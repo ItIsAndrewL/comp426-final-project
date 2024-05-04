@@ -1,15 +1,19 @@
-import { Song } from "./swipe_screen";
-
-function favoriteSong({song}:{song:Song}){
+import './favorites.css'
+function favoriteSong({song, delete: deleteFn}:{song:any, delete: (id:string) => void}){
 
 return(
+    <div className='song'>
     <div>
-    <div>
-        <img src={song.album.images[0].url}/>
+        <img src={song.album.images[0].url} width={50} height={50}/>
+    </div>
+    <div className='title'>
+         <p>{song.name}</p>
+         <p>{song.artists.name}</p>
     </div>
     <div>
-         <p>{song.name}</p>
-         {song.artists.map((artist) => (<p>{artist.name}</p>))}
+        <button onClick={() => deleteFn(song.id)}>
+            Delete
+        </button>
     </div>
     </div>
 )

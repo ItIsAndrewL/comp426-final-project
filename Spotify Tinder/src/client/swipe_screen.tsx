@@ -80,11 +80,17 @@ function SwipeScreen({token}: {token: string}){
 
     async function addToFavorites(){
         try{
-            const response = await fetch("/api/favorite/" + songs[currentSongIndex].id, {method: "POST", headers: {'jwt-token': token}});
+            const body = JSON.stringify({
+                song_id: songs[currentSongIndex].id,
+                title: songs[currentSongIndex].name ?? '',
+                artists: songs[currentSongIndex].artists.map((artist) => artist.name).join(', ') ?? '',
+                song_url: songs[currentSongIndex].album.images[0].url ?? ''
+              });
+            const response = await fetch("/api/favorite", {method: "POST", headers: {'jwt-token': token, 'Content-type': 'application/json'}, body: body});
             if(response.ok){
                 console.log("song has been added")
             }else{
-                console.log("song has not been added")
+                console.log(response)
             }
 
         }catch (e){
