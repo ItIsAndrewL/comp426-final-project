@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Album_Art from "./album_art.js";
 import Buttons from "./buttons.js";
+import { PAGE } from "./page";
 
 export interface Song {
     id: string;
@@ -14,7 +15,7 @@ export interface Song {
 }
 
 
-function SwipeScreen({token}: {token: string}){
+function SwipeScreen({token, setPage}: {token: string, setPage: any}){
     type EmptySongArray = Song[];
     const [songs, setSongs] = useState<EmptySongArray>([]);
     const [currentSongIndex, setCurrentSongIndex] = useState(-1)
@@ -153,6 +154,15 @@ if(songs.length === 0){
 }
 return(
     <div>
+        <div>
+          <button onClick={() => {
+            setPage(PAGE.FAVORITES);
+            if(audioRef){
+                audioRef.pause();
+                audioRef.src = '';
+            }
+          }} >Favorites</button>
+      </div>
         {songs.length > 0 && (
             <div>
                 {songs[currentSongIndex] && <Album_Art song={songs[currentSongIndex]}/>}
