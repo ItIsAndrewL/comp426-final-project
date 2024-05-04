@@ -1,0 +1,30 @@
+
+
+.checkButton{
+    width: 75px;
+    height: 75px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.xButton{
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.screenDiv{
+    display: flex;
+    flex-direction: row;
+}
+
+.buttonDiv{
+    margin-left: 40px;
+    margin-right: 40px;
+    margin-top: 20px;
+}

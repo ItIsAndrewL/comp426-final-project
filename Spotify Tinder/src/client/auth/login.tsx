@@ -47,7 +47,7 @@ function Login({ setPage, setErrorStatus, errorStatus, setToken }: any) {
         <input id="password" name="password" placeholder="*********" type="password" onChange={e => {setPassword(e.target.value); setErrorStatus("");}} />
         <button id="loginButton" onClick={signIn}>Login</button>
         <p className='errorStatus'>{errorStatus}</p>
-        <button id="tosignup" onClick={() => {setPage(PAGE.SIGNUP); setErrorStatus("");}}>Need an account? Sign Up</button>
+        <button id="tosignup" className="login-signup-btn" onClick={() => {setPage(PAGE.SIGNUP); setErrorStatus("");}}>Need an account? Sign Up</button>
     </div>
   );
 }

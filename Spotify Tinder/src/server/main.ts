@@ -81,7 +81,7 @@ router.get("/get-track/:id", verifyJWT, updateToken, async (req, res) => {
   return res.json(await response.json());
 });
 
-router.get("/get-next-tracks", verifyJWT, updateToken, async (req, res) => {
+router.get("/get-next-tracks", verifyJWT, updateToken, async (req: any, res) => {
   /**
    * Gets the track info of the next 20 tracks to display on the tinder-like feed
    * ! Do not assume that you will get 20 tracks, there may be less!!
@@ -129,35 +129,34 @@ router.get("/get-next-tracks", verifyJWT, updateToken, async (req, res) => {
 
 // Routes for Favorites Storage
 
-router.get("/favorites", verifyJWT, updateToken, async (req, res) => {
+router.get("/favorites", verifyJWT, async (req: any, res) => {
   /**
    * Gets a list of Favorites, ordered by most recently added by their id
    * 
-   * @returns {id: number, song_id: string, song: Song_obj}[] list of json objects
+   * @returns {id: number, song_id: string, title: string, artists: string, song_url: string}[] list of json objects, artists comma separated list
    */
   let favorites: Favorites[] | null = await Favorites.get_user_favorites(req.userId);
   if (favorites == null) {
     return res.status(500).send("Internal Server Error.");
   }
-  // TODO: Need to make a request for every 100 songs
-  let ids = favorites.reduce((acc: string, val: Favorites) => acc += val.song_id + ",", "").slice(0, -1);
-  const response = await fetch("https://api.spotify.com/v1/tracks?ids=" + ids, {
-    headers: {
-      Authorization: 'Bearer ' + curr_token
-    }
-  });
-
-  if (!response.ok) {
-    return res.status(500).send("Internal Server Error.");
-  }
-
-  let songs = (await response.json()).tracks;
-  return res.json(favorites.map((val, i) => val.to_json(songs[i])));
+  
+  res.json(favorites.map(fav => fav.to_json()));
 });
 
-router.post("/favorite/:songId", verifyJWT, async (req, res) => {
-  // TODO: Could possibly make sure that the songId is a valid spotify song id
-  let added = await Favorites.add_favorite(req.userId, req.params.songId);
+router.post("/favorite", verifyJWT, async (req: any, res) => {
+  /** Adds song to users favorite list
+   * Expects body in this form: {"song_id": string, "title": string, "artists": string, "song_url": string}
+   * Note that artists is expected to come in a comma separated list
+   * Only the song_id is required
+   * 
+   * @returns 200 if ok, 500 if fail
+   */
+  if (req.body.song_id === undefined) {
+    console.log(req.body.song_id)
+    return res.status(400).send("Bad Request, Song_id missing");
+  }
+
+  let added = await Favorites.add_favorite(req.userId, req.body.song_id, req.body.title, req.body.artists, req.body.song_url);
   if (added) {
     res.status(200).send("Added!");
   } else {
@@ -165,7 +164,7 @@ router.post("/favorite/:songId", verifyJWT, async (req, res) => {
   }
 });
 
-router.delete("/favorite/:id", verifyJWT, async (req, res) => {
+router.delete("/favorite/:id", verifyJWT, async (req: any, res) => {
   let id;
   try {
     id = Number(req.params.id);
