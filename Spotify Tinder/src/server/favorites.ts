@@ -4,22 +4,28 @@ export class Favorites {
     #id: number;
     #user_id: number;
     #favorite_id: string; // Spotify song ID
+    #title: string;
+    #artists: string;
+    #album_url: string;
 
-    constructor(id: number, user_id: number, favorite: string) {
+    constructor(id: number, user_id: number, favorite: string, title: string = "", artists: string = "", album_url: string = "") {
         this.#id = id;
         this.#user_id = user_id;
         this.#favorite_id = favorite;
+        this.#title = title;
+        this.#artists = artists;
+        this.#album_url = album_url;
     }
 
-    static async add_favorite(user_id: number, favorite: string): Promise<boolean> {
+    static async add_favorite(user_id: number, favorite_id: string, title: string = "", artists: string = "", album_url: string = ""): Promise<boolean> {
         /**
          * Add a song id to the user's favorite list
          * 
-         * @returns Promise<boolean> if adding succeeded
+         * @return Promise<boolean> if adding succeeded
          */
         // TODO: Make sure favorite is not a duplicate for the user
         try {
-            await db.run('INSERT INTO Favorites VALUES (NULL, ?, ?)', user_id, favorite);
+            await db.run('INSERT INTO Favorites VALUES (NULL, ?, ?, ?, ?, ?)', user_id, favorite_id, title, artists, album_url);
             return true;
         } catch (e) {
             return false;
