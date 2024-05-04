@@ -41,7 +41,7 @@ export class Favorites {
          */
         try {
             let result = await db.all("SELECT * FROM Favorites WHERE user_id = ?", user_id);
-            return result.map((row: any) => new Favorites(row.id, row.user_id, row.song_id)).sort((a: Favorites, b: Favorites) => b.#id - a.#id);
+            return result.map((row: any) => new Favorites(row.id, row.user_id, row.song_id, row.title, row.artist, row.album_url)).sort((a: Favorites, b: Favorites) => b.#id - a.#id);
         } catch (e) {
             return null;
         }
@@ -74,14 +74,16 @@ export class Favorites {
         return favorites.map((val: any) => val.#favorite_id).slice(0, 4);
     }
 
-    to_json(song: any) {
+    to_json() {
         /**
          * Converts object to JSON without the user_id field
          */
         return {
             "id": this.#id,
             "song_id": this.#favorite_id,
-            "song": song
+            "title": this.#title,
+            "artists": this.#artists,
+            "song_url": this.#album_url
         };
     }
 

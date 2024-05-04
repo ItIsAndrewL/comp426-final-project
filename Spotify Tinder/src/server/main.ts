@@ -129,30 +129,18 @@ router.get("/get-next-tracks", verifyJWT, updateToken, async (req: any, res) => 
 
 // Routes for Favorites Storage
 
-router.get("/favorites", verifyJWT, updateToken, async (req: any, res) => {
+router.get("/favorites", verifyJWT, async (req: any, res) => {
   /**
    * Gets a list of Favorites, ordered by most recently added by their id
    * 
-   * @returns {id: number, song_id: string, "title": string, "artists": string, "song_url": string}[] list of json objects, artists comma separated list
+   * @returns {id: number, song_id: string, title: string, artists: string, song_url: string}[] list of json objects, artists comma separated list
    */
   let favorites: Favorites[] | null = await Favorites.get_user_favorites(req.userId);
   if (favorites == null) {
     return res.status(500).send("Internal Server Error.");
   }
   
-  let ids = favorites.reduce((acc: string, val: Favorites) => acc += val.song_id + ",", "").slice(0, -1);
-  const response = await fetch("https://api.spotify.com/v1/tracks?ids=" + ids, {
-    headers: {
-      Authorization: 'Bearer ' + curr_token
-    }
-  });
-
-  if (!response.ok) {
-    return res.status(500).send("Internal Server Error.");
-  }
-
-  let songs = (await response.json()).tracks;
-  return res.json(favorites.map((val, i) => val.to_json(songs[i])));
+  res.json(favorites.map(fav => fav.to_json()));
 });
 
 router.post("/favorite", verifyJWT, async (req: any, res) => {
