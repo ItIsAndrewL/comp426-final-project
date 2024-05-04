@@ -50,10 +50,7 @@ function App() {
   } else if (page == PAGE.AUTHED) {
     content = (
       <div>
-      <div>
-          <button onClick={() => {setPage(PAGE.FAVORITES)}} >Favorites</button>
-      </div>
-      <SwipeScreen token={token}/>
+      <SwipeScreen token={token} setPage={setPage}/>
       </div>
     );
   } else {
