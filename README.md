@@ -2,6 +2,9 @@
 
 Music Tinder Web Application Project - Swipe on song snippets to create a discovery list!
 
+## Demo Video
+https://youtu.be/5Qi9RPIxUjU
+
 ## Getting Started
 
 To get started on development follow these instructions:
